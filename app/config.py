@@ -62,6 +62,12 @@ class Settings(BaseSettings):
     db_port: int = Field(default=5432, validation_alias="DB_PORT")
     database_url_override: str | None = Field(default=None, validation_alias="DATABASE_URL")
 
+    # Connection pool settings
+    db_pool_size: int = Field(default=5, validation_alias="DB_POOL_SIZE")
+    db_max_overflow: int = Field(default=10, validation_alias="DB_MAX_OVERFLOW")
+    db_pool_timeout: int = Field(default=30, validation_alias="DB_POOL_TIMEOUT")
+    db_pool_recycle: int = Field(default=3600, validation_alias="DB_POOL_RECYCLE")
+
     openai_api_key: SecretStr | None = Field(default=None, validation_alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-6.2-sol", validation_alias="OPENAI_MODEL")
 

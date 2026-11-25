@@ -58,14 +58,14 @@ TradeMind is a FastAPI-based trading agent platform with:
 ## Phase 3: Production Hardening
 
 ### 3.1 Database & Migrations
-- [ ] Verify Alembic migrations work with PostgreSQL
+- [x] Verify Alembic migrations work with PostgreSQL
 - [ ] Add indexes for common query patterns
-- [ ] Add connection pooling configuration
+- [x] Add connection pooling configuration
 
 ### 3.2 Error Handling & Observability
 - [ ] Structured logging (JSON format)
 - [ ] Request tracing (correlation IDs)
-- [ ] Health check endpoints with dependency status
+- [x] Health check endpoints with dependency status (/health, /health/ready, /health/live)
 - [ ] Metrics exposure (Prometheus format)
 
 ### 3.3 Security
@@ -75,10 +75,10 @@ TradeMind is a FastAPI-based trading agent platform with:
 - [ ] Secrets management (no hardcoded credentials)
 
 ### 3.4 Deployment
-- [ ] Dockerfile with multi-stage build
-- [ ] docker-compose.yml for local dev (PostgreSQL + app)
-- [ ] GitHub Actions CI pipeline
-- [ ] Production deployment docs
+- [x] Dockerfile with multi-stage build
+- [x] docker-compose.yml for local dev (PostgreSQL + app + streamlit)
+- [x] GitHub Actions CI pipeline (.github/workflows/ci.yml)
+- [x] Production deployment docs (DEPLOYMENT.md)
 
 ## Phase 4: Advanced Features
 
