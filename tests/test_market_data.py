@@ -96,6 +96,7 @@ def test_service_persists_and_updates_duplicate_bars(db_session, ohlcv_frame):
     service = MarketDataService(provider=provider, session=db_session)
 
     first = service.fetch_and_store("msft", period="3mo", interval="1d")
+    assert service.get_latest("MSFT")[0]["close"] == 13.0
     ohlcv_frame.loc[ohlcv_frame.index[-1], "Close"] = 13.5
     provider.fetch_history.return_value = {"MSFT": ohlcv_frame}
     second = service.fetch_and_store("MSFT", period="3mo", interval="1d")
