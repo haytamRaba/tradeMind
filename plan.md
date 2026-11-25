@@ -66,7 +66,7 @@ TradeMind is a FastAPI-based trading agent platform with:
 - [x] Structured logging (JSON format) - app/middleware/logging.py
 - [x] Request tracing (correlation IDs) - X-Correlation-ID header
 - [x] Health check endpoints with dependency status (/health, /health/ready, /health/live)
-- [ ] Metrics exposure (Prometheus format)
+- [x] Metrics exposure (Prometheus format) - /metrics endpoint, app/middleware/metrics.py
 
 ### 3.3 Security
 - [x] Input sanitization on all endpoints - app/middleware/security.py
