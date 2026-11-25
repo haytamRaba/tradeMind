@@ -106,6 +106,51 @@ TradeMind is a FastAPI-based trading agent platform with:
 - [ ] News sentiment integration
 - [ ] Fundamental analysis agent
 
+## Phase 5: Streamlit Frontend
+
+### 5.1 Core Dashboard Pages
+- [ ] **Market Data Explorer** - Search tickers, view OHLCV charts with indicators (SMA, RSI, MACD, ATR)
+- [ ] **Research Agent UI** - Run analysis, view strategy votes, evidence, and AI narration
+- [ ] **Paper Trading Dashboard** - Portfolio overview, positions, P&L, order history
+- [ ] **Risk Monitor** - Exposure limits, daily loss tracker, position sizing calculator
+
+### 5.2 Interactive Features
+- [ ] Real-time chart updates (Plotly) with indicator overlays
+- [ ] One-click research run with progress indicator
+- [ ] Trade execution modal with risk preview (quantity, stop, target)
+- [ ] Historical backtest visualizer for strategies
+- [ ] WebSocket live price feed for watched tickers
+
+### 5.3 Architecture Integration
+- [ ] Streamlit app calls FastAPI endpoints via httpx
+- [ ] Shared config (Settings) between FastAPI and Streamlit
+- [ ] Authentication via API key in sidebar
+- [ ] Session state for multi-page navigation
+- [ ] Caching with st.cache_data for market data calls
+
+### 5.4 File Structure Addition
+```
+tradeMind/
+├── frontend/                    # Streamlit app (NEW)
+│   ├── app.py                   # Main entry point
+│   ├── pages/
+│   │   ├── 1_📊_Market_Data.py
+│   │   ├── 2_🔬_Research.py
+│   │   ├── 3_📈_Trading.py
+│   │   ├── 4_⚠️_Risk.py
+│   │   └── 5_📜_History.py
+│   ├── components/
+│   │   ├── charts.py            # Plotly chart components
+│   │   ├── forms.py             # Reusable form components
+│   │   └── metrics.py           # KPI cards, progress bars
+│   ├── services/
+│   │   ├── api_client.py        # httpx client for FastAPI
+│   │   └── cache.py             # Streamlit caching wrappers
+│   └── config.py                # Streamlit-specific settings
+├── requirements.txt             # Add streamlit, plotly
+└── docker-compose.yml           # Add streamlit service
+```
+
 ## File Structure
 
 ```
@@ -123,12 +168,18 @@ tradeMind/
 │   ├── market_data/            # Provider, validation, service
 │   ├── risk/                   # Limits, sizing, validator
 │   └── strategies/             # 4 strategies + engine
-├── migrations/                 # Alembic migrations
-├── scripts/                    # CLI entry points (NEW)
-├── tests/                      # Unit + API tests
-├── .env                        # Local config
+├── frontend/                    # Streamlit app (NEW)
+│   ├── app.py                   # Main entry point
+│   ├── pages/                   # Multi-page dashboard
+│   ├── components/              # Reusable UI components
+│   ├── services/                # API client, caching
+│   └── config.py                # Streamlit settings
+├── migrations/                  # Alembic migrations
+├── scripts/                     # CLI entry points
+├── tests/                       # Unit + API tests
+├── .env                         # Local config
 ├── requirements.txt
-└── plan.md                     # This file
+└── plan.md                      # This file
 ```
 
 ## Key Technical Decisions
@@ -144,12 +195,13 @@ tradeMind/
 
 ## Next Steps (Priority Order)
 
-1. **Create runnable demo script** (`scripts/run_agent_pipeline.py`)
+1. **Create runnable demo script** (`scripts/run_agent_pipeline.py`) ✅
 2. **Enhance tests** with integration coverage
-3. **Run pipeline** and save output to `actions_demo.txt`
+3. **Run pipeline** and save output to `actions_demo.txt` ✅
 4. **Add Docker** support for local development
 5. **Set up CI/CD** with GitHub Actions
 6. **Document API** with OpenAPI/Swagger improvements
+7. **Build Streamlit frontend** (Phase 5) - Market Data, Research, Trading, Risk dashboards
 
 ## Commands Reference
 
@@ -157,22 +209,29 @@ tradeMind/
 # Run tests
 source .venv/Scripts/activate && python -m pytest tests/ -v
 
-# Run demo pipeline (after creation)
+# Run demo pipeline
 python scripts/run_agent_pipeline.py --ticker MSFT --period 1mo --interval 1d
 
 # Start API server
 source .venv/Scripts/activate && uvicorn app.main:app --reload
+
+# Start Streamlit frontend (in separate terminal)
+source .venv/Scripts/activate && streamlit run frontend/app.py
 
 # Run migrations
 alembic upgrade head
 
 # Create migration
 alembic revision --autogenerate -m "description"
+
+# Docker compose (all services)
+docker-compose up -d
 ```
 
 ## Dependencies
 
 ```
+# Backend (FastAPI)
 fastapi
 uvicorn
 sqlalchemy
@@ -187,4 +246,8 @@ numpy
 alembic
 pytest
 pytest-asyncio
+
+# Frontend (Streamlit)
+streamlit
+plotly
 ```
