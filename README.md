@@ -4,16 +4,9 @@ TradeMind is an AI-assisted stock research and paper-trading platform. The long-
 
 ## Current phase
 
-Phase 1 implements the market-data foundation:
+Phase 2 adds a functional Research Agent and a risk-limited paper Trading Agent on top of the Phase 1 market-data platform. The agents run locally without an OpenAI key; an optional OpenAI Responses API call can explain computed research evidence. AI output never changes a quantitative signal or bypasses trading controls.
 
-- Yahoo Finance retrieval through `yfinance`
-- OHLCV validation and UTC normalization
-- PostgreSQL/SQLite persistence with idempotent upserts
-- A versioned FastAPI market-data API
-- An Alembic migration for stock and historical-price tables
-- Offline tests using SQLite and mocked Yahoo responses
-
-The research agent, trading agent, risk controls, strategies, paper-trading engine, background tasks, authentication, observability, Docker/CI, and frontend are **not implemented yet**. Their empty module directories are reserved architecture, not working features.
+All order execution is simulated. No live broker integration is enabled.
 
 ## Requirements
 
@@ -101,8 +94,16 @@ Interactive API docs are available at `http://localhost:8000/docs`. The OpenAPI 
 | `DATABASE_URL` | unset | Optional full SQLAlchemy URL override |
 | `PROJECT_NAME` | `TradeMind` | FastAPI title |
 | `API_V1_PREFIX` | `/api/v1` | API route prefix |
+| `OPENAI_API_KEY` | unset | Optional key for Research Agent narration; never needed for calculations or paper trading |
+| `OPENAI_MODEL` | `gpt-6.2-sol` | Model used only for report narration when a key is configured |
+| `PAPER_INITIAL_CASH` | `100000` | Starting cash for the default simulated portfolio |
+| `MAX_RISK_PER_TRADE_PCT` | `0.01` | Maximum portfolio equity risked on one new order |
+| `MAX_POSITION_PCT` | `0.10` | Maximum equity allocated to a single ticker |
+| `MAX_PORTFOLIO_EXPOSURE_PCT` | `0.50` | Maximum total long exposure |
+| `MAX_DAILY_LOSS_PCT` | `0.05` | Stops new buys after realized daily losses reach this limit |
+| `MAX_OPEN_POSITIONS` | `10` | Maximum number of simultaneous positions |
 
-Yahoo Finance does not require a TradeMind API key. Broker credentials, LLM keys, and live-trading settings are not implemented and must not be added until those subsystems exist with explicit authorization controls.
+Yahoo Finance does not require a TradeMind API key. `OPENAI_API_KEY` is optional and is used only to narrate computed research evidence. It is never required to calculate indicators or execute simulated paper trades.
 
 ## API
 
@@ -178,6 +179,22 @@ Response shape:
 }
 ```
 
+### Research and trading agents
+
+```text
+POST /api/v1/agents/research/{ticker}?period=1y&interval=1d
+POST /api/v1/agents/trading/{ticker}/execute
+GET  /api/v1/paper-trading/portfolio
+GET  /api/v1/paper-trading/orders
+POST /api/v1/paper-trading/monitor
+```
+
+Research refreshes market history, validates it, calculates deterministic technical indicators, and evaluates the configured strategy set. The response includes the signal, indicator values, strategy votes, proposed entry/stop/target levels, and a short explanation. An optional model can narrate this evidence; it cannot alter the calculations or signal. Insufficient history produces an `INSUFFICIENT_DATA` result.
+
+Trading accepts the latest research report and places only simulated orders. New buy orders require a stop price and are checked against per-trade risk, position size, total exposure, daily realized loss, and open-position limits. The default simulated account starts with `$100,000`; configure paper limits with the environment variables above. The monitor refreshes open tickers and checks stored bars against stop-loss and take-profit levels.
+
+Paper fills use the supplied reference price and currently do not model fees, spread, slippage, partial fills, or intraday stop ordering. Sell signals close the full simulated position. The API has no authentication yet and is intended for local development.
+
 ### Error responses
 
 | Status | Meaning |
@@ -205,8 +222,13 @@ Validation errors include structured issues with `ticker`, `timestamp`, `severit
 ```text
 app/
   api/          FastAPI routes, dependencies, and response schemas
+  agents/       Research and paper trading workflows
+  analysis/     Deterministic technical indicators
   database/     SQLAlchemy models, repositories, and session factory
+  execution/    Paper broker and order persistence
   market_data/  Provider contract, Yahoo provider, validation, and workflow service
+  risk/         Paper-trading limits and position sizing
+  strategies/   Deterministic signal strategies and consensus engine
   config.py     pydantic-settings configuration
   main.py       FastAPI application entry point
 migrations/     Alembic environment and versioned schema changes
@@ -216,17 +238,10 @@ tests/          Offline unit and API tests
 Reserved for later phases:
 
 ```text
-app/agents/       Research and trading agents
-app/analysis/     Technical, fundamental, and regime analysis
-app/execution/    Broker interface, paper trading, and order management
 app/memory/       Agent memory
 app/reports/      Report generation
-app/risk/         Risk limits and pre-trade validation
-app/strategies/   Strategy implementations
 app/tasks/        Scheduled analysis and monitoring
 ```
-
-These directories currently contain placeholders only.
 
 ## Testing
 
@@ -251,6 +266,9 @@ Current test coverage includes:
 - Service persistence and duplicate-bar updates
 - Latest-bar handling
 - API route shapes, OpenAPI paths, and error mapping
+- Technical indicators, strategy consensus, research orchestration, and optional narration
+- Paper portfolio persistence, idempotent orders, risk rejection, position accounting, and protective exits
+- Research, execution, portfolio, order, and monitoring API responses
 
 ## Docker and deployment
 
@@ -274,7 +292,10 @@ Planned supporting work, in priority order:
 2. Docker and Docker Compose for API, PostgreSQL, and optional Redis
 3. Structured logging, request IDs, and audit logging
 4. Authentication, authorization, request validation, and rate limiting
-5. Research Agent and Trading Agent workflows with mocked LLM tests
-6. Skills registry with permissions and execution metrics
-7. Deterministic risk validation, paper trading, and order idempotency
-8. Frontend dashboard backed by the real API contracts
+5. Skills registry with permissions and execution metrics
+6. Fundamental data and broader quantitative analysis
+7. Frontend dashboard backed by the real API contracts
+
+## Release v1
+
+TradeMind v1 provides validated Yahoo Finance market data, deterministic technical research, and risk-limited simulated paper trading. Optional AI narration explains research evidence but cannot direct or execute orders. All trading is simulated; live brokerage, authentication, and production deployment controls are outside this release.
