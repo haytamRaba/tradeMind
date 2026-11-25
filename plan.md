@@ -46,10 +46,10 @@ TradeMind is a FastAPI-based trading agent platform with:
 - [x] Output structured JSON + human-readable logs
 
 ### 2.2 Test Enhancement
-- [ ] Add integration test for full pipeline (data→research→trade→monitor)
-- [ ] Add test for protective stop triggering
-- [ ] Add test for daily loss limit enforcement
-- [ ] Add test for idempotent replay behavior
+- [x] Add integration test for full pipeline (data→research→trade→monitor)
+- [x] Add test for protective stop triggering
+- [x] Add test for daily loss limit enforcement
+- [x] Add test for idempotent replay behavior
 
 ### 2.3 Actions Demo Output
 - [x] Run pipeline and capture output to `actions_demo.txt`
@@ -142,15 +142,25 @@ tradeMind/
 │   │   └── 5_📜_History.py
 │   ├── components/
 │   │   ├── charts.py            # Plotly chart components
-│   │   ├── forms.py             # Reusable form components (TODO)
-│   │   └── metrics.py           # KPI cards, progress bars (TODO)
+│   │   ├── forms.py             # Reusable form components
+│   │   └── metrics.py           # KPI cards, progress bars
 │   ├── services/
 │   │   ├── api_client.py        # httpx client for FastAPI
 │   │   └── cache.py             # Streamlit caching wrappers
 │   └── config.py                # Streamlit-specific settings
 ├── requirements.txt             # Add streamlit, plotly
-└── docker-compose.yml           # Add streamlit service (TODO)
+└── docker-compose.yml           # Add streamlit service
 ```
+
+### 5.5 Frontend Components
+- [x] Create `frontend/components/forms.py` - Reusable form components
+- [x] Create `frontend/components/metrics.py` - KPI cards, progress bars
+
+### 3.4 Deployment (Phase 3)
+- [x] Dockerfile with multi-stage build
+- [x] docker-compose.yml for local dev (PostgreSQL + app + streamlit)
+- [ ] GitHub Actions CI pipeline
+- [ ] Production deployment docs
 
 ## File Structure
 
