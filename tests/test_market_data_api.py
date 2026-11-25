@@ -5,8 +5,16 @@ from fastapi.testclient import TestClient
 
 from app.api.dependencies import get_market_data_service
 from app.main import app
-from app.market_data.providers.interfaces import ProviderInvalidTicker
-from app.market_data.service import MarketDataServiceStockNotFound
+from app.market_data.providers.interfaces import (
+    ProviderEmptyResponse,
+    ProviderInvalidTicker,
+    ProviderNetworkError,
+    ProviderRateLimitError,
+)
+from app.market_data.service import (
+    MarketDataServiceStockNotFound,
+    MarketDataServiceValidationError,
+)
 
 client = TestClient(app)
 
@@ -75,6 +83,10 @@ def test_latest_and_history_endpoints_return_expected_shapes(service_override):
     ("error", "path", "status"),
     [
         (ProviderInvalidTicker("bad ticker"), "/api/v1/market-data/NOPE", 404),
+        (ProviderEmptyResponse("no data"), "/api/v1/market-data/MSFT", 404),
+        (ProviderRateLimitError("rate limit"), "/api/v1/market-data/MSFT", 429),
+        (ProviderNetworkError("provider unavailable"), "/api/v1/market-data/MSFT", 502),
+        (MarketDataServiceValidationError("invalid data", []), "/api/v1/market-data/MSFT", 422),
         (ValueError("bad interval"), "/api/v1/market-data/MSFT", 422),
         (MarketDataServiceStockNotFound("no stored bars"), "/api/v1/market-data/MSFT/history", 404),
     ],
