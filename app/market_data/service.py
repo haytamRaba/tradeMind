@@ -63,6 +63,7 @@ class MarketDataService:
         end_at = self._parse_date(end)
         if start_at is not None and end_at is not None and start_at > end_at:
             raise ValueError("start must be earlier than or equal to end")
+        self._validate_period_interval(period, interval)
         try:
             frames = self.provider.fetch_history(
                 symbol, period=period, interval=interval, start=start, end=end
@@ -188,6 +189,21 @@ class MarketDataService:
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=timezone.utc)
         return parsed.astimezone(timezone.utc)
+
+    @staticmethod
+    def _validate_period_interval(period: str, interval: str) -> None:
+        """Reject period/interval combinations yfinance cannot serve.
+
+        Intraday intervals (1m-1h) only support short periods (1d, 5d).
+        """
+        intraday_intervals = {"1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h"}
+        short_periods = {"1d", "5d"}
+        if interval in intraday_intervals and period not in short_periods:
+            raise ValueError(
+                f"Intraday interval '{interval}' only supports periods "
+                f"{', '.join(sorted(short_periods))}, not '{period}'. "
+                f"Use interval '1d' (or longer) for period '{period}'."
+            )
 
     @staticmethod
     def _to_model_rows(stock_id: int, frame: pd.DataFrame) -> list[HistoricalPrice]:
