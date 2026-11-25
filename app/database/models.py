@@ -92,7 +92,13 @@ class Stock(Base):
 
 
 class HistoricalPrice(Base):
-    """A single OHLCV bar for a ticker, normalized to UTC."""
+    """A single OHLCV bar for a ticker, normalized to UTC.
+
+    Imports: app/database/repositories.py (HistoricalPriceRepository), tests/test_market_data.py
+    Exports: HistoricalPrice ORM model
+    Data schema: OHLCV bars with stock_id, timestamp, open, high, low, close, volume, source
+    User instruction: complete all phases in plan.md (add indexes for common query patterns)
+    """
 
     __tablename__ = "historical_prices"
 
@@ -126,6 +132,9 @@ class HistoricalPrice(Base):
             name="valid_ohlc_range",
         ),
         CheckConstraint("volume >= 0", name="non_negative_volume"),
+        # Composite index for common query: get_latest(stock_symbol, limit) - stock_id + timestamp DESC
+        # The unique constraint (stock_id, timestamp) serves as a composite index.
+        # For explicit DESC scan optimization, PostgreSQL can scan the unique index backward.
     )
 
     def __repr__(self) -> str:  # pragma: no cover - debugging helper

@@ -15,8 +15,13 @@ from app.api.routes.agents import router as agent_router
 from app.api.routes.market_data import router
 from app.config import get_settings
 from app.database.session import get_async_session as get_session
+from app.middleware.logging import CorrelationIDMiddleware, setup_logging
+from app.middleware.security import add_security_middleware
 
 settings = get_settings()
+
+# Setup structured logging
+setup_logging(settings.log_level)
 
 
 @asynccontextmanager
@@ -32,6 +37,13 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# Add correlation ID middleware
+app.add_middleware(CorrelationIDMiddleware)
+
+# Add security middleware (rate limiting, API key auth, sanitization)
+add_security_middleware(app)
+
 app.include_router(router, prefix=settings.api_v1_prefix)
 app.include_router(agent_router, prefix=settings.api_v1_prefix)
 

@@ -68,8 +68,16 @@ class Settings(BaseSettings):
     db_pool_timeout: int = Field(default=30, validation_alias="DB_POOL_TIMEOUT")
     db_pool_recycle: int = Field(default=3600, validation_alias="DB_POOL_RECYCLE")
 
+    # Rate limiting
+    rate_limit_default: int = Field(default=60, validation_alias="RATE_LIMIT_DEFAULT")
+    rate_limit_market_data: int = Field(default=30, validation_alias="RATE_LIMIT_MARKET_DATA")
+    rate_limit_agents: int = Field(default=10, validation_alias="RATE_LIMIT_AGENTS")
+
     openai_api_key: SecretStr | None = Field(default=None, validation_alias="OPENAI_API_KEY")
     openai_model: str = Field(default="gpt-6.2-sol", validation_alias="OPENAI_MODEL")
+
+    # API Key for authentication
+    api_key: SecretStr | None = Field(default=None, validation_alias="API_KEY")
 
     paper_initial_cash: float = Field(default=100_000, validation_alias="PAPER_INITIAL_CASH")
     max_risk_per_trade_pct: float = Field(default=0.01, validation_alias="MAX_RISK_PER_TRADE_PCT")
