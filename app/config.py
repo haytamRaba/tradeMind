@@ -23,7 +23,7 @@ from functools import lru_cache
 from pathlib import Path
 from sqlalchemy.engine import URL
 
-from pydantic import Field, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Resolve the project root independent of the current working directory.
@@ -62,6 +62,16 @@ class Settings(BaseSettings):
     db_port: int = Field(default=5432, validation_alias="DB_PORT")
     database_url_override: str | None = Field(default=None, validation_alias="DATABASE_URL")
 
+    openai_api_key: SecretStr | None = Field(default=None, validation_alias="OPENAI_API_KEY")
+    openai_model: str = Field(default="gpt-6.2-sol", validation_alias="OPENAI_MODEL")
+
+    paper_initial_cash: float = Field(default=100_000, validation_alias="PAPER_INITIAL_CASH")
+    max_risk_per_trade_pct: float = Field(default=0.01, validation_alias="MAX_RISK_PER_TRADE_PCT")
+    max_position_pct: float = Field(default=0.10, validation_alias="MAX_POSITION_PCT")
+    max_portfolio_exposure_pct: float = Field(default=0.50, validation_alias="MAX_PORTFOLIO_EXPOSURE_PCT")
+    max_daily_loss_pct: float = Field(default=0.05, validation_alias="MAX_DAILY_LOSS_PCT")
+    max_open_positions: int = Field(default=10, validation_alias="MAX_OPEN_POSITIONS")
+
     @property
     def database_url(self) -> str:
         """Build the PostgreSQL connection URL from the configured fields."""
@@ -88,6 +98,32 @@ class Settings(BaseSettings):
         valid = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
         if value not in valid:
             raise ValueError(f"log_level must be one of {sorted(valid)}")
+        return value
+
+    @field_validator("paper_initial_cash")
+    @classmethod
+    def _validate_initial_cash(cls, value: float) -> float:
+        if value <= 0:
+            raise ValueError("Paper trading initial cash must be positive")
+        return value
+
+    @field_validator(
+        "max_risk_per_trade_pct",
+        "max_position_pct",
+        "max_portfolio_exposure_pct",
+        "max_daily_loss_pct",
+    )
+    @classmethod
+    def _validate_positive_risk_settings(cls, value: float) -> float:
+        if value <= 0 or value > 1:
+            raise ValueError("Risk percentages must be greater than zero and at most one")
+        return value
+
+    @field_validator("max_open_positions")
+    @classmethod
+    def _validate_position_limit(cls, value: int) -> int:
+        if value < 1:
+            raise ValueError("max_open_positions must be at least one")
         return value
 
     # ------------------------------------------------------------- metadata
