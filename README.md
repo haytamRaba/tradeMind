@@ -270,31 +270,47 @@ Current test coverage includes:
 - Paper portfolio persistence, idempotent orders, risk rejection, position accounting, and protective exits
 - Research, execution, portfolio, order, and monitoring API responses
 
-## Docker and deployment
+## Docker Compose
 
-Docker Compose and production deployment automation are **not yet configured**. For now, run PostgreSQL separately and start the API with Uvicorn as shown above.
+Docker Compose provides the API, PostgreSQL, and a one-shot migration service. PostgreSQL data is stored in the named `postgres_data` volume. The API starts only after the database is healthy and migrations have completed.
 
-For a production deployment:
+Development with source mounts and Uvicorn reload:
 
-1. Set `APP_ENV=production`.
-2. Provide a strong `DB_PASSWORD` or a complete `DATABASE_URL`.
-3. Run `python -m alembic upgrade head` before starting the API.
-4. Run Uvicorn behind a reverse proxy with TLS.
-5. Do not expose the API publicly until authentication, authorization, rate limiting, and audit logging are implemented.
+```bash
+copy .env.example .env
+docker compose -f compose.yaml -f compose.dev.yaml up --build
+```
 
-No live-money trading capability is implemented.
+Production-style background stack:
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml up --build -d
+```
+
+Set a strong `DB_PASSWORD` in `.env` before using the production override. The API is available at `http://localhost:8000/docs` unless `APP_PORT` is changed in `.env`.
+
+Useful commands:
+
+```bash
+docker compose ps
+docker compose logs -f api
+docker compose down
+docker compose down -v
+```
+
+`docker compose down -v` also deletes the PostgreSQL volume and all local data.
+
+For an internet-facing deployment, terminate TLS at a reverse proxy and do not expose the API publicly until authentication, authorization, rate limiting, and audit logging are implemented. No live-money trading capability is implemented.
 
 ## Roadmap
 
 Planned supporting work, in priority order:
 
-1. CI for linting, tests, type checks, and migration validation
-2. Docker and Docker Compose for API, PostgreSQL, and optional Redis
-3. Structured logging, request IDs, and audit logging
-4. Authentication, authorization, request validation, and rate limiting
-5. Skills registry with permissions and execution metrics
-6. Fundamental data and broader quantitative analysis
-7. Frontend dashboard backed by the real API contracts
+1. Structured logging, request IDs, and audit logging
+2. Authentication, authorization, request validation, and rate limiting
+3. Skills registry with permissions and execution metrics
+4. Fundamental data and broader quantitative analysis
+5. Frontend dashboard backed by the real API contracts
 
 ## Release v1
 
