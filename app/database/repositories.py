@@ -163,7 +163,8 @@ class HistoricalPriceRepository:
             stmt = stmt.where(HistoricalPrice.timestamp >= start)
         if end is not None:
             stmt = stmt.where(HistoricalPrice.timestamp <= end)
-        return list(self.session.scalars(stmt).order_by(HistoricalPrice.timestamp.asc()))
+        stmt = stmt.order_by(HistoricalPrice.timestamp.asc())
+        return list(self.session.scalars(stmt))
 
     def count_for_symbol(self, stock_symbol: str) -> int:
         """Count how many bars are stored for a symbol."""
