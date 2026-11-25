@@ -104,17 +104,14 @@ def main():
 
 def test_connection():
     """Test API connection."""
-    from frontend.services.api_client import get_api_client
-    import asyncio
+    from frontend.services.async_runner import run_async
 
-    client = get_api_client(st.session_state.get("api_key"))
+    api_key = st.session_state.get("api_key")
     try:
-        result = asyncio.run(client.health_check())
+        result = run_async(lambda c: c.health_check(), api_key)
         st.sidebar.success(f"✅ Connected: {result}")
     except Exception as e:
         st.sidebar.error(f"❌ Connection failed: {e}")
-    finally:
-        asyncio.run(client.close())
 
 
 def show_quick_stats():

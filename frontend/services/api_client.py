@@ -38,12 +38,20 @@ class APIClient:
             await self._client.aclose()
             self._client = None
 
+    async def __aenter__(self):
+        """Async context manager entry."""
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit - close client."""
+        await self.close()
+
     # Market Data endpoints
     async def get_market_data(self, ticker: str, period: str = "1mo", interval: str = "1d") -> dict[str, Any]:
         """Fetch market data for a ticker."""
-        resp = await self.client.post(
-            "/api/v1/market-data",
-            json={"ticker": ticker, "period": period, "interval": interval},
+        resp = await self.client.get(
+            f"/api/v1/market-data/{ticker}",
+            params={"period": period, "interval": interval},
         )
         resp.raise_for_status()
         return resp.json()
@@ -116,3 +124,13 @@ class APIClient:
 def get_api_client(api_key: str | None = None) -> APIClient:
     """Get cached API client instance."""
     return APIClient(api_key)
+
+
+# Helper function for easy one-shot calls
+async def _run_with_client(api_key: str | None, coro_factory):
+    """Run a coroutine with a fresh client and close it."""
+    client = APIClient(api_key)
+    try:
+        return await coro_factory(client)
+    finally:
+        await client.close()

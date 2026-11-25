@@ -106,13 +106,11 @@ def main():
 
 def execute_trade(ticker: str, idempotency_key: str):
     """Execute a paper trade."""
-    from frontend.services.api_client import get_api_client
-    import asyncio
+    from frontend.services.async_runner import run_async
 
-    client = get_api_client()
     try:
         with st.spinner(f"Executing trade for {ticker}..."):
-            result = asyncio.run(client.execute_trade(ticker, idempotency_key))
+            result = run_async(lambda c: c.execute_trade(ticker, idempotency_key))
         st.success(f"Trade executed: {result.get('execution', {}).get('status', 'Unknown')}")
         st.json(result)
         invalidate_portfolio()
@@ -120,19 +118,15 @@ def execute_trade(ticker: str, idempotency_key: str):
         st.rerun()
     except Exception as e:
         st.error(f"Trade failed: {e}")
-    finally:
-        asyncio.run(client.close())
 
 
 def monitor_positions():
     """Monitor protective stops."""
-    from frontend.services.api_client import get_api_client
-    import asyncio
+    from frontend.services.async_runner import run_async
 
-    client = get_api_client()
     try:
         with st.spinner("Monitoring positions..."):
-            result = asyncio.run(client.monitor_positions())
+            result = run_async(lambda c: c.monitor_positions())
         st.success(f"Monitoring complete: {len(result.get('exits', []))} exits triggered")
         if result.get("exits"):
             for exit in result["exits"]:
@@ -142,8 +136,6 @@ def monitor_positions():
         st.rerun()
     except Exception as e:
         st.error(f"Monitor failed: {e}")
-    finally:
-        asyncio.run(client.close())
 
 
 if __name__ == "__main__":

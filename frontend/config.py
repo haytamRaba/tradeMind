@@ -5,6 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -22,7 +23,7 @@ class FrontendSettings(BaseSettings):
     )
 
     # API connection
-    api_base_url: str = "http://localhost:8000"
+    api_base_url: str = Field(default="http://localhost:8000", validation_alias="FASTAPI_BASE_URL")
     api_timeout: int = 30
 
     # Streamlit config

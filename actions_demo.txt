@@ -1,5 +1,5 @@
 TradeMind Agent Pipeline Demo
-Generated: 2026-11-25T16:42:11.784389
+Generated: 2026-11-25T22:51:48.751426
 Ticker: MSFT
 Period: 1mo
 Interval: 1d
@@ -56,12 +56,12 @@ Interval: 1d
         "side": "SELL",
         "status": "FILLED",
         "quantity": "62.00000000",
-        "execution_price": "480.32000732421875",
+        "execution_price": "489.75",
         "stop_loss": null,
         "take_profit": null,
-        "realized_pnl": "19921.8404541015625000000000",
-        "cash_after": "119921.8404541015625000000000",
-        "idempotency_key": "protect-1-2026-11-25T1640000000",
+        "realized_pnl": "20506.5000000000000000",
+        "cash_after": "120506.5000000000",
+        "idempotency_key": "protect-1-2026-11-25T2059000000",
         "message": "Take-profit crossed by the latest stored bar.",
         "replayed": false
       }
@@ -74,12 +74,12 @@ Interval: 1d
       "side": "SELL",
       "status": "FILLED",
       "quantity": "62.00000000",
-      "execution_price": "480.32000732",
+      "execution_price": "489.75000000",
       "stop_loss": null,
       "take_profit": null,
-      "realized_pnl": "19921.8405",
+      "realized_pnl": "20506.5000",
       "cash_after": null,
-      "idempotency_key": "protect-1-2026-11-25T1640000000",
+      "idempotency_key": "protect-1-2026-11-25T2059000000",
       "message": "Paper order filled at the reference price.",
       "replayed": false
     },
