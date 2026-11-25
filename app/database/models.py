@@ -8,12 +8,13 @@ All stored timestamps use UTC.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from typing import Any
 
 from sqlalchemy import CheckConstraint, ForeignKey, MetaData, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column as mc
-from sqlalchemy.types import BigInteger, DateTime, Float, Integer, String, TypeDecorator
+from sqlalchemy.types import BigInteger, DateTime, Float, Integer, Numeric, String, Text, TypeDecorator
 
 # SQLAlchemy uses this naming convention when it creates constraints.
 
@@ -132,3 +133,81 @@ class HistoricalPrice(Base):
             f"<HistoricalPrice(stock_id={self.stock_id!r}, timestamp="
             f"{self.timestamp!r}, close={self.close!r})>"
         )
+
+
+class PaperPortfolio(Base):
+    """Single-user simulated portfolio and its available cash."""
+
+    __tablename__ = "paper_portfolios"
+
+    id: Mapped[int] = mc(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mc(String(48), unique=True, nullable=False)
+    starting_cash: Mapped[Decimal] = mc(Numeric(20, 4), nullable=False)
+    cash: Mapped[Decimal] = mc(Numeric(20, 4), nullable=False)
+    created_at: Mapped[datetime] = mc(
+        DateTimeUTC(), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+    updated_at: Mapped[datetime] = mc(
+        DateTimeUTC(), default=lambda: datetime.now(timezone.utc), nullable=False
+    )
+
+    __table_args__ = (
+        CheckConstraint("starting_cash > 0", name="positive_starting_cash"),
+        CheckConstraint("cash >= 0", name="non_negative_cash"),
+    )
+
+
+class PaperPosition(Base):
+    """Open simulated position, unique per portfolio and stock."""
+
+    __tablename__ = "paper_positions"
+
+    id: Mapped[int] = mc(Integer, primary_key=True, autoincrement=True)
+    portfolio_id: Mapped[int] = mc(ForeignKey("paper_portfolios.id", ondelete="CASCADE"), index=True)
+    stock_id: Mapped[int] = mc(ForeignKey("stocks.id", ondelete="CASCADE"), index=True)
+    quantity: Mapped[Decimal] = mc(Numeric(20, 8), nullable=False)
+    average_entry_price: Mapped[Decimal] = mc(Numeric(20, 8), nullable=False)
+    stop_loss: Mapped[Decimal] = mc(Numeric(20, 8), nullable=False)
+    take_profit: Mapped[Decimal | None] = mc(Numeric(20, 8), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint("portfolio_id", "stock_id", name="uq_paper_position_stock"),
+        CheckConstraint("quantity > 0", name="positive_position_quantity"),
+        CheckConstraint("average_entry_price > 0", name="positive_position_price"),
+        CheckConstraint("stop_loss > 0", name="positive_position_stop"),
+    )
+
+
+class PaperOrder(Base):
+    """Idempotent paper order and its simulated fill or rejection."""
+
+    __tablename__ = "paper_orders"
+
+    id: Mapped[int] = mc(Integer, primary_key=True, autoincrement=True)
+    portfolio_id: Mapped[int] = mc(ForeignKey("paper_portfolios.id", ondelete="CASCADE"), index=True)
+    stock_id: Mapped[int] = mc(ForeignKey("stocks.id", ondelete="CASCADE"), index=True)
+    idempotency_key: Mapped[str] = mc(String(64), unique=True, nullable=False)
+    side: Mapped[str] = mc(String(4), nullable=False)
+    status: Mapped[str] = mc(String(10), nullable=False)
+    quantity: Mapped[Decimal] = mc(Numeric(20, 8), nullable=False)
+    execution_price: Mapped[Decimal] = mc(Numeric(20, 8), nullable=False)
+    stop_loss: Mapped[Decimal | None] = mc(Numeric(20, 8), nullable=True)
+    take_profit: Mapped[Decimal | None] = mc(Numeric(20, 8), nullable=True)
+    realized_pnl: Mapped[Decimal] = mc(Numeric(20, 4), nullable=False, default=Decimal("0"))
+    rejection_reason: Mapped[str | None] = mc(Text, nullable=True)
+    created_at: Mapped[datetime] = mc(DateTimeUTC(), index=True, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    __table_args__ = (
+        CheckConstraint("side IN ('BUY', 'SELL')", name="valid_paper_order_side"),
+        CheckConstraint("status IN ('FILLED', 'REJECTED')", name="valid_paper_order_status"),
+        CheckConstraint("execution_price > 0", name="positive_paper_order_price"),
+        CheckConstraint("quantity >= 0", name="non_negative_paper_order_quantity"),
+        CheckConstraint(
+            "status = 'REJECTED' OR quantity > 0",
+            name="positive_filled_order_quantity",
+        ),
+        CheckConstraint(
+            "status = 'REJECTED' OR side = 'SELL' OR stop_loss IS NOT NULL",
+            name="paper_buy_requires_stop",
+        ),
+    )
