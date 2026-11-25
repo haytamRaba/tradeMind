@@ -40,10 +40,10 @@ TradeMind is a FastAPI-based trading agent platform with:
 ## Phase 2: Agent Pipeline Enhancement (In Progress)
 
 ### 2.1 Runnable CLI Demo Script
-- [ ] Create `scripts/run_agent_pipeline.py` using SQLite in-memory
-- [ ] Demonstrate full flow: seed data → research → execute → monitor
-- [ ] Add argparse for ticker/period/interval
-- [ ] Output structured JSON + human-readable logs
+- [x] Create `scripts/run_agent_pipeline.py` using SQLite in-memory
+- [x] Demonstrate full flow: seed data → research → execute → monitor
+- [x] Add argparse for ticker/period/interval
+- [x] Output structured JSON + human-readable logs
 
 ### 2.2 Test Enhancement
 - [ ] Add integration test for full pipeline (data→research→trade→monitor)
@@ -52,8 +52,8 @@ TradeMind is a FastAPI-based trading agent platform with:
 - [ ] Add test for idempotent replay behavior
 
 ### 2.3 Actions Demo Output
-- [ ] Run pipeline and capture output to `actions_demo.txt`
-- [ ] Document each step with timestamps and decisions
+- [x] Run pipeline and capture output to `actions_demo.txt`
+- [x] Document each step with timestamps and decisions
 
 ## Phase 3: Production Hardening
 
@@ -109,24 +109,25 @@ TradeMind is a FastAPI-based trading agent platform with:
 ## Phase 5: Streamlit Frontend
 
 ### 5.1 Core Dashboard Pages
-- [ ] **Market Data Explorer** - Search tickers, view OHLCV charts with indicators (SMA, RSI, MACD, ATR)
-- [ ] **Research Agent UI** - Run analysis, view strategy votes, evidence, and AI narration
-- [ ] **Paper Trading Dashboard** - Portfolio overview, positions, P&L, order history
-- [ ] **Risk Monitor** - Exposure limits, daily loss tracker, position sizing calculator
+- [x] **Market Data Explorer** - Search tickers, view OHLCV charts with indicators (SMA, RSI, MACD, ATR)
+- [x] **Research Agent UI** - Run analysis, view strategy votes, evidence, and AI narration
+- [x] **Paper Trading Dashboard** - Portfolio overview, positions, P&L, order history
+- [x] **Risk Monitor** - Exposure limits, daily loss tracker, position sizing calculator
+- [x] **History & Performance** - Order history, P&L charts, CSV export
 
 ### 5.2 Interactive Features
-- [ ] Real-time chart updates (Plotly) with indicator overlays
-- [ ] One-click research run with progress indicator
-- [ ] Trade execution modal with risk preview (quantity, stop, target)
+- [x] Real-time chart updates (Plotly) with indicator overlays
+- [x] One-click research run with progress indicator
+- [x] Trade execution modal with risk preview (quantity, stop, target)
 - [ ] Historical backtest visualizer for strategies
 - [ ] WebSocket live price feed for watched tickers
 
 ### 5.3 Architecture Integration
-- [ ] Streamlit app calls FastAPI endpoints via httpx
-- [ ] Shared config (Settings) between FastAPI and Streamlit
-- [ ] Authentication via API key in sidebar
-- [ ] Session state for multi-page navigation
-- [ ] Caching with st.cache_data for market data calls
+- [x] Streamlit app calls FastAPI endpoints via httpx
+- [x] Shared config (Settings) between FastAPI and Streamlit
+- [x] Authentication via API key in sidebar
+- [x] Session state for multi-page navigation
+- [x] Caching with st.cache_data for market data calls
 
 ### 5.4 File Structure Addition
 ```
@@ -141,14 +142,14 @@ tradeMind/
 │   │   └── 5_📜_History.py
 │   ├── components/
 │   │   ├── charts.py            # Plotly chart components
-│   │   ├── forms.py             # Reusable form components
-│   │   └── metrics.py           # KPI cards, progress bars
+│   │   ├── forms.py             # Reusable form components (TODO)
+│   │   └── metrics.py           # KPI cards, progress bars (TODO)
 │   ├── services/
 │   │   ├── api_client.py        # httpx client for FastAPI
 │   │   └── cache.py             # Streamlit caching wrappers
 │   └── config.py                # Streamlit-specific settings
 ├── requirements.txt             # Add streamlit, plotly
-└── docker-compose.yml           # Add streamlit service
+└── docker-compose.yml           # Add streamlit service (TODO)
 ```
 
 ## File Structure
@@ -198,10 +199,13 @@ tradeMind/
 1. **Create runnable demo script** (`scripts/run_agent_pipeline.py`) ✅
 2. **Enhance tests** with integration coverage
 3. **Run pipeline** and save output to `actions_demo.txt` ✅
-4. **Add Docker** support for local development
+4. **Add Docker** support for local development (docker-compose.yml)
 5. **Set up CI/CD** with GitHub Actions
 6. **Document API** with OpenAPI/Swagger improvements
-7. **Build Streamlit frontend** (Phase 5) - Market Data, Research, Trading, Risk dashboards
+7. **Build Streamlit frontend** (Phase 5) - Market Data, Research, Trading, Risk dashboards ✅
+8. **Add remaining frontend components** - forms.py, metrics.py
+9. **Add docker-compose.yml** with streamlit service
+10. **Install streamlit/plotly** in venv and test integration
 
 ## Commands Reference
 
