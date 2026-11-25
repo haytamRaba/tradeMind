@@ -43,13 +43,13 @@ def upgrade() -> None:
         sa.UniqueConstraint("stock_id", "timestamp", name="uq_stock_timestamp"),
         sa.CheckConstraint(
             "open > 0 AND high > 0 AND low > 0 AND close > 0",
-            name="ck_historical_prices_positive_prices",
+            name="positive_prices",
         ),
         sa.CheckConstraint(
             "low <= open AND low <= close AND open <= high AND close <= high",
-            name="ck_historical_prices_valid_ohlc_range",
+            name="valid_ohlc_range",
         ),
-        sa.CheckConstraint("volume >= 0", name="ck_historical_prices_non_negative_volume"),
+        sa.CheckConstraint("volume >= 0", name="non_negative_volume"),
     )
     op.create_index("ix_historical_prices_stock_id", "historical_prices", ["stock_id"])
     op.create_index("ix_historical_prices_timestamp", "historical_prices", ["timestamp"])
