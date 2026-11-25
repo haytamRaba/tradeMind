@@ -72,7 +72,7 @@ TradeMind is a FastAPI-based trading agent platform with:
 - [x] Input sanitization on all endpoints - app/middleware/security.py
 - [x] Rate limiting on market data endpoints - app/middleware/security.py
 - [x] API key authentication for agent endpoints - app/middleware/security.py
-- [ ] Secrets management (no hardcoded credentials) - using .env and pydantic-settings
+- [x] Secrets management (no hardcoded credentials) - .env.example template, pydantic-settings
 
 ### 3.4 Deployment
 - [x] Dockerfile with multi-stage build
@@ -155,12 +155,6 @@ tradeMind/
 ### 5.5 Frontend Components
 - [x] Create `frontend/components/forms.py` - Reusable form components
 - [x] Create `frontend/components/metrics.py` - KPI cards, progress bars
-
-### 3.4 Deployment (Phase 3)
-- [x] Dockerfile with multi-stage build
-- [x] docker-compose.yml for local dev (PostgreSQL + app + streamlit)
-- [ ] GitHub Actions CI pipeline
-- [ ] Production deployment docs
 
 ## File Structure
 
